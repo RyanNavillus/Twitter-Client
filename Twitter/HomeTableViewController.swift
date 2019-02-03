@@ -11,7 +11,6 @@ import UIKit
 class HomeTableViewController: UITableViewController {
     
     var tweets = [NSDictionary]()
-    var tweetCount = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,11 +22,12 @@ class HomeTableViewController: UITableViewController {
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
         self.title = "Home"
         loadTweet()
+        tableView.delegate = self
+        tableView.dataSource = self
     }
 
     // MARK: - Table view data source
-
-    
+        
     @IBAction func logoutPressed(_ sender: Any) {
         TwitterAPICaller.client?.logout()
         self.dismiss(animated: true, completion: nil)
@@ -40,6 +40,7 @@ class HomeTableViewController: UITableViewController {
         
         TwitterAPICaller.client?.getDictionariesRequest(url: url, parameters: params, success: { (dict) in
             //success
+            self.tweets.removeAll()
             for tweet in dict {
                 self.tweets.append(tweet)
             }
@@ -63,6 +64,7 @@ class HomeTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TweetCell", for: indexPath)
+
         let tweet = tweets[indexPath.row]
         if let tweetCell = cell as? TweetTableViewCell, let user = tweet["user"] as? [String: Any] {
             tweetCell.userLabel.text = user["name"] as? String ?? ""
