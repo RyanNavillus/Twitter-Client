@@ -24,6 +24,7 @@ class HomeTableViewController: UITableViewController {
         loadTweet()
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.allowsSelection = false
     }
 
     // MARK: - Table view data source
@@ -32,6 +33,10 @@ class HomeTableViewController: UITableViewController {
         TwitterAPICaller.client?.logout()
         self.dismiss(animated: true, completion: nil)
         UserDefaults.standard.set(false, forKey: "loggedIn")
+    }
+    
+    @IBAction func tweetPressed(_ sender: Any) {
+        
     }
     
     func loadTweet() {
@@ -61,7 +66,6 @@ class HomeTableViewController: UITableViewController {
         return tweets.count
     }
 
-    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TweetCell", for: indexPath)
 
@@ -69,11 +73,16 @@ class HomeTableViewController: UITableViewController {
         if let tweetCell = cell as? TweetTableViewCell, let user = tweet["user"] as? [String: Any] {
             tweetCell.userLabel.text = user["name"] as? String ?? ""
             tweetCell.contentLabel.text = tweet["text"] as? String ?? ""
+            tweetCell.contentLabel.sizeToFit()
             
             if let imageUrl = URL(string: user["profile_image_url_https"] as? String ?? ""),
                 let data = try? Data(contentsOf: imageUrl) {
                 tweetCell.profileImage.image = UIImage(data: data)
             }
+            
+            tweetCell.favorited = tweet["favorited"] as? Bool ?? false
+            tweetCell.retweeted = tweet["retweeted"] as? Bool ?? false
+            tweetCell.tweetID = tweet["id"] as? Int ?? -1
             
         }
 
@@ -118,14 +127,17 @@ class HomeTableViewController: UITableViewController {
     }
     */
 
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // Get the new view controller using segue.destination.
         // Pass the selected object to the new view controller.
+        if let navController = segue.destination as? UINavigationController, let controller = navController.viewControllers.first as? TweetViewController {
+            //
+        }
     }
-    */
+    
 
 }
